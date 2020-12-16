@@ -25,8 +25,17 @@ module.exports = {
     continuous: true
   },
   plugins: [
-    '~/plugins/element',
-    '~/plugins/axios'
+    '@/plugins/element-ui',
+    '@/plugins/axios'
+  ],
+  /*
+  ** Auto import components
+  ** See https://nuxtjs.org/api/configuration-components
+  */
+  components: false,
+  buildModules: [
+    // Doc: https://github.com/nuxt-community/eslint-module
+    '@nuxtjs/eslint-module'
   ],
   modules: [
     '@nuxtjs/axios',
@@ -36,20 +45,9 @@ module.exports = {
     scss: ['@/styles/variables.scss']
   },
   build: {
+    transpile: [/^element-ui/],
     publicPath: isPro ? '//cdn.timelessq.com/assets/dist/client' : '/_nuxt/', // 只需将dist/client上传cdn
     babel: {
-      presets({ isServer }) {
-        return [
-          [
-            require.resolve('@nuxt/babel-preset-app'),
-            // require.resolve('@nuxt/babel-preset-app-edge'), // For nuxt-edge users
-            {
-              buildTarget: isServer ? 'server' : 'client',
-              corejs: { version: 3 }
-            }
-          ]
-        ]
-      },
       'plugins': [
         [
           'component',
@@ -76,27 +74,20 @@ module.exports = {
       img: ({ isDev }) => isDev ? '[path][name].[ext]' : 'img/[name].[contenthash:8].[ext]',
       font: ({ isDev }) => isDev ? '[path][name].[ext]' : 'fonts/[name].[contenthash:8].[ext]'
     },
-    html: {
-      minify: {
-        collapseInlineTagWhitespace: true,
-        collapseWhitespace: true,
-        removeComments: true
-      }
-    },
     optimization: {
       splitChunks: {
         chunks: 'all',
         cacheGroups: {
           commons: false,
           vendors: {
-            name: 'chunk-vendors',
+            name: 'vendors',
             test: /[\\/]node_modules[\\/]/,
             minChunks: 2,
             priority: 10,
             chunks: 'initial' // only package third parties that are initially dependent
           },
           element: {
-            name: 'chunk-element', // split elementUI into a single package
+            name: 'element', // split elementUI into a single package
             priority: 20, // the weight needs to be larger than vendor and app or it will be packaged into vendor or app
             test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
           }
